@@ -62,6 +62,20 @@ npm run build
 
 The build files will be output to the `dist` directory.
 
+## Farcaster Assets
+
+This app includes the required assets for Farcaster mini app integration:
+- `public/logo.png` (192x192) - App icon
+- `public/splash.png` (400x400) - Splash screen
+- `public/.well-known/farcaster.json` - Manifest file
+
+SVG versions of the assets are provided in the `public` directory. To create the required PNG files:
+1. Convert `public/logo.svg` to a 192x192 PNG
+2. Convert `public/splash.svg` to a 400x400 PNG
+3. Replace the placeholder PNG files
+
+See `ASSETS_INSTRUCTIONS.md` for detailed conversion instructions.
+
 ## Smart Contracts
 
 The app includes sample smart contracts in the `contracts` directory:

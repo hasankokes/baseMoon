@@ -2,9 +2,9 @@
   "miniapp": {
     "version": "1",
     "name": "Base Moon",
-    "iconUrl": "https://base-moon.example.com/logo.png",
-    "homeUrl": "https://base-moon.example.com",
-    "splashImageUrl": "https://base-moon.example.com/logo.png",
+    "iconUrl": "https://asd.com/logo.png",
+    "homeUrl": "https://asd.com",
+    "splashImageUrl": "https://asd.com/splash.png",
     "splashBackgroundColor": "#121212",
     "subtitle": "Base Airdrop Preparation Tool",
     "description": "Tool for preparing wallets for Base airdrops with gamification elements",
