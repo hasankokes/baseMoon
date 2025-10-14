@@ -14,15 +14,15 @@ A Farcaster mini app for preparing wallets for Base airdrops with gamification e
 ## Tools
 
 1. **Create NFT**: Earn 100 BM coins
-   - Fee: 0.004 ETH
+   - Fee: 0.0004 ETH
    - Create custom NFTs with name, ticker, description, and image
 
 2. **Create Token**: Earn 100 BM coins
-   - Fee: 0.004 ETH
+   - Fee: 0.0004 ETH
    - Create custom tokens with name, ticker, and supply
 
 3. **Deploy Smart Contract**: Earn 100 BM coins
-   - Fee: 0.003 ETH
+   - Fee: 0.0003 ETH
    - Deploy a simple storage contract to the Base network
 
 ## Technologies Used
