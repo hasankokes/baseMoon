@@ -72,6 +72,10 @@ The project includes SVG files that need to be converted to PNG for proper Farca
 
 See `CREATE_PNG_FILES.md` for detailed instructions on creating these PNG files using various methods.
 
+## Contract Deployment
+
+The current implementation only sends fees but does not actually deploy smart contracts. See `CONTRACT_DEPLOYMENT.md` for information on implementing actual contract deployment.
+
 ## Farcaster Assets
 
 This app includes the required assets for Farcaster mini app integration:
