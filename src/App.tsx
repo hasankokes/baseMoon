@@ -1,83 +1,9 @@
 import { sdk } from "@farcaster/frame-sdk";
 import { useEffect, useState } from "react";
-import { useAccount, useConnect, useDisconnect, useBalance } from "wagmi";
-import { useWriteContract, useSendTransaction, useDeployContract } from "wagmi";
+import { useAccount, useConnect, useDisconnect } from "wagmi";
+import { useSendTransaction } from "wagmi";
 import { parseEther } from "viem";
 import "./index.css";
-
-// NFT contract ABI
-const NFT_ABI = [
-  {
-    "inputs": [
-      { "internalType": "string", "name": "name", "type": "string" },
-      { "internalType": "string", "name": "symbol", "type": "string" },
-      { "internalType": "string", "name": "baseURI", "type": "string" }
-    ],
-    "stateMutability": "nonpayable",
-    "type": "constructor"
-  },
-  {
-    "inputs": [
-      { "internalType": "address", "name": "to", "type": "address" },
-      { "internalType": "string", "name": "tokenURI", "type": "string" }
-    ],
-    "name": "mintNFT",
-    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  }
-];
-
-// Token contract ABI
-const TOKEN_ABI = [
-  {
-    "inputs": [
-      { "internalType": "string", "name": "name", "type": "string" },
-      { "internalType": "string", "name": "symbol", "type": "string" },
-      { "internalType": "uint8", "name": "decimals_", "type": "uint8" },
-      { "internalType": "uint256", "name": "initialSupply", "type": "uint256" }
-    ],
-    "stateMutability": "nonpayable",
-    "type": "constructor"
-  },
-  {
-    "inputs": [
-      { "internalType": "address", "name": "to", "type": "address" },
-      { "internalType": "uint256", "name": "amount", "type": "uint256" }
-    ],
-    "name": "mint",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  }
-];
-
-// Storage contract ABI
-const STORAGE_ABI = [
-  {
-    "inputs": [],
-    "stateMutability": "nonpayable",
-    "type": "constructor"
-  },
-  {
-    "inputs": [
-      { "internalType": "uint256", "name": "value", "type": "uint256" }
-    ],
-    "name": "setValue",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "getValue",
-    "outputs": [
-      { "internalType": "uint256", "name": "", "type": "uint256" }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  }
-];
 
 // Fee recipient address
 const FEE_RECIPIENT = "0xd07626FafC58605a2dd407292b59E456CfC73C5F";
@@ -107,10 +33,7 @@ function App() {
   const { isConnected, address } = useAccount();
   const { connect, connectors } = useConnect();
   const { disconnect } = useDisconnect();
-  const { data: balance } = useBalance({ address });
-  const { writeContract } = useWriteContract();
   const { sendTransaction } = useSendTransaction();
-  const { deployContract } = useDeployContract();
 
   useEffect(() => {
     // Load points from localStorage
