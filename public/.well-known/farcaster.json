@@ -1,0 +1,19 @@
+{
+  "miniapp": {
+    "version": "1",
+    "name": "Base Moon",
+    "iconUrl": "https://base-moon.example.com/logo.png",
+    "homeUrl": "https://base-moon.example.com",
+    "splashImageUrl": "https://base-moon.example.com/logo.png",
+    "splashBackgroundColor": "#121212",
+    "subtitle": "Base Airdrop Preparation Tool",
+    "description": "Tool for preparing wallets for Base airdrops with gamification elements",
+    "primaryCategory": "utility",
+    "tags": ["base", "ethereum", "nft", "token", "smart-contract"],
+    "requiredChains": ["eip155:8453"],
+    "requiredCapabilities": [
+      "actions.ready",
+      "wallet.getEthereumProvider"
+    ]
+  }
+}
