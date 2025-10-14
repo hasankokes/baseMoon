@@ -62,6 +62,16 @@ npm run build
 
 The build files will be output to the `dist` directory.
 
+## Creating PNG Assets
+
+The project includes SVG files that need to be converted to PNG for proper Farcaster integration:
+
+1. `public/logo.svg` → `public/logo.png` (192x192) - App icon
+2. `public/preview.svg` → `public/preview.png` (400x400) - Preview image
+3. `public/splash.svg` → `public/splash.png` (400x400) - Splash screen
+
+See `CREATE_PNG_FILES.md` for detailed instructions on creating these PNG files using various methods.
+
 ## Farcaster Assets
 
 This app includes the required assets for Farcaster mini app integration:
@@ -71,10 +81,11 @@ This app includes the required assets for Farcaster mini app integration:
 
 SVG versions of the assets are provided in the `public` directory. To create the required PNG files:
 1. Convert `public/logo.svg` to a 192x192 PNG
-2. Convert `public/splash.svg` to a 400x400 PNG
-3. Replace the placeholder PNG files
+2. Convert `public/preview.svg` to a 400x400 PNG
+3. Convert `public/splash.svg` to a 400x400 PNG
+4. Replace the placeholder PNG files
 
-See `PNG_CREATION_INSTRUCTIONS.md` for detailed conversion instructions.
+See `CREATE_PNG_FILES.md` for detailed conversion instructions.
 
 ## MiniKit Configuration
 
