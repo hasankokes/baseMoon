@@ -15,5 +15,8 @@
       "actions.ready",
       "wallet.getEthereumProvider"
     ]
+  },
+  "baseBuilder": {
+    "allowedAddresses": ["0x8D201C801BF8DfbdCF04BEE77306ac99558659c8"]
   }
 }
