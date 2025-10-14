@@ -20,11 +20,11 @@ export const minikitConfig = {
     primaryCategory: "utility",
     tags: ["base", "ethereum", "nft", "token", "smart-contract"],
     // Optional fields that can be added later
-    screenshotUrls: [`${ROOT_URL}/screenshot.png`],
-    heroImageUrl: `${ROOT_URL}/splash.png`,
+    screenshotUrls: [`${ROOT_URL}/preview.png`],
+    heroImageUrl: `${ROOT_URL}/preview.png`,
     tagline: "Prepare your wallet for Base airdrops",
     ogTitle: "Base Moon - Farcaster Mini App",
     ogDescription: "Tool for preparing wallets for Base airdrops with gamification elements",
-    ogImageUrl: `${ROOT_URL}/splash.png`,
+    ogImageUrl: `${ROOT_URL}/preview.png`,
   },
 } as const;

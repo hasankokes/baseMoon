@@ -65,7 +65,7 @@ The build files will be output to the `dist` directory.
 ## Farcaster Assets
 
 This app includes the required assets for Farcaster mini app integration:
-- `public/logo.png` (192x192) - App icon
+- `public/logo.png` (192x192) - App icon and preview image
 - `public/splash.png` (400x400) - Splash screen
 - `public/.well-known/farcaster.json` - Manifest file
 
@@ -74,7 +74,20 @@ SVG versions of the assets are provided in the `public` directory. To create the
 2. Convert `public/splash.svg` to a 400x400 PNG
 3. Replace the placeholder PNG files
 
-See `ASSETS_INSTRUCTIONS.md` for detailed conversion instructions.
+See `PNG_CREATION_INSTRUCTIONS.md` for detailed conversion instructions.
+
+## MiniKit Configuration
+
+This app includes a `minikit.config.ts` file for Base MiniKit integration:
+- Configures the Farcaster manifest at `public/.well-known/farcaster.json`
+- Sets up embed metadata for social sharing
+- Defines account association credentials (to be added after account association)
+
+To complete the MiniKit setup:
+1. Deploy the app to your domain (https://base-moon-ten.vercel.app)
+2. Use the Base Build Account Association tool to generate account association credentials
+3. Update the `accountAssociation` object in `minikit.config.ts` with the generated credentials
+4. Redeploy the app
 
 ## Smart Contracts
 
