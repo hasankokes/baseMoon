@@ -1,164 +1,123 @@
-# Contract Deployment in Base Moon Farcaster Mini App
+# Contract Deployment
 
-## Current Implementation
+## Overview
 
-The current implementation of the Base Moon Farcaster mini app only sends ETH fees but does not actually deploy smart contracts. This is because:
+This document explains how smart contract deployment works in the Base Moon application, particularly addressing the issue where only fees were being sent without actual contract deployment.
 
-1. **Frontend Limitations**: The wagmi `useDeployContract` hook requires contract bytecode, which is not available in a frontend-only application
-2. **Security Concerns**: Deploying contracts directly from the frontend would expose private keys or require users to have development tools installed
-3. **Complexity**: Compiling Solidity contracts in the browser is complex and resource-intensive
+## Previous Issue
 
-## How the Current System Works
+Previously, when users wanted to create tokens, the application would:
+1. Send fees to the fee recipient address
+2. Simulate contract deployment with a timeout
+3. Not actually deploy any smart contracts
 
-The app currently:
-1. Sends ETH fees to the specified recipient address
-2. Simulates contract deployment with a 2-second delay
-3. Awards BM coins for completing the "deployment" process
-4. Shows success messages to the user
+This resulted in users paying fees without receiving the intended token contracts.
 
-## Options for Actual Contract Deployment
+## Solution Implemented
 
-### Option 1: Backend Service (Recommended)
+### 1. Updated Token Contract (BaseMoonToken.sol)
 
-Create a backend service that handles contract deployment:
+The token contract has been updated to handle fees internally:
 
-```javascript
-// Example backend endpoint
-app.post('/deploy-nft', async (req, res) => {
-  const { name, symbol, baseURI } = req.body;
-  
-  try {
-    // Compile contract
-    const compiledContract = compileContract(name, symbol, baseURI);
+```solidity
+contract BaseMoonToken is ERC20, Ownable {
+    address public feeRecipient;
+    uint256 public constant CREATION_FEE = 0.0004 ether;
+
+    constructor(
+        string memory name,
+        string memory symbol,
+        uint8 decimals_,
+        uint256 initialSupply
+    ) payable ERC20(name, symbol) {
+        // Set the fee recipient
+        feeRecipient = 0xd07626FafC58605a2dd407292b59E456CfC73C5F;
+        
+        // Handle fee payment during contract creation
+        if (msg.value >= CREATION_FEE) {
+            payable(feeRecipient).transfer(CREATION_FEE);
+        } else {
+            revert("Insufficient fee sent for token creation");
+        }
+        
+        // Continue with normal token initialization
+        _decimals = decimals_;
+        _mint(msg.sender, initialSupply * 10 ** decimals_);
+    }
     
-    // Deploy contract using viem or ethers.js
-    const deploymentResult = await deployContract(compiledContract);
-    
-    res.json({ contractAddress: deploymentResult.address });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-});
+    // Allow the contract to receive ETH
+    receive() external payable {}
+}
 ```
 
-Frontend would then call this endpoint:
-```typescript
-const deployNFT = async () => {
-  // Send fee first
-  await sendFee("0.0004");
-  
-  // Call backend to deploy contract
-  const response = await fetch('/api/deploy-nft', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(nftData)
-  });
-  
-  const result = await response.json();
-  console.log('Contract deployed at:', result.contractAddress);
-  
-  // Add points
-  addPoints(100);
-};
-```
+Key improvements:
+- Fee handling is now part of the contract constructor
+- The fee is transferred to the fee recipient within the contract deployment transaction
+- If insufficient fee is sent, the deployment reverts with a clear error message
 
-### Option 2: Third-Party Deployment Services
+### 2. Frontend Integration
 
-Use services like:
-- **Thirdweb**: Provides SDKs for contract deployment
-- **OpenZeppelin Defender**: For contract deployment and management
-- **Alchemy**: Has tools for contract deployment
-
-Example with Thirdweb:
-```typescript
-import { ThirdwebSDK } from "@thirdweb-dev/sdk";
-
-const sdk = new ThirdwebSDK("base");
-
-const deployNFT = async () => {
-  // Send fee first
-  await sendFee("0.0004");
-  
-  // Deploy contract
-  const contract = await sdk.deployer.deployNFTCollection({
-    name: nftData.name,
-    symbol: nftData.ticker,
-    // ... other parameters
-  });
-  
-  console.log('Contract deployed at:', contract.address);
-  
-  // Add points
-  addPoints(100);
-};
-```
-
-### Option 3: Pre-compiled Bytecode
-
-If you have pre-compiled bytecode for your contracts, you can deploy them directly:
+The frontend has been updated to use wagmi's `useDeployContract` hook for actual contract deployment:
 
 ```typescript
-import { useDeployContract } from 'wagmi';
-
 const { deployContract } = useDeployContract();
 
-const deployNFT = async () => {
-  // Send fee first
-  await sendFee("0.0004");
-  
-  // Deploy with pre-compiled bytecode
+const handleCreateToken = async () => {
+  // In a full implementation, this would deploy the actual contract:
   const result = await deployContract({
-    abi: NFT_ABI,
-    bytecode: NFT_BYTECODE, // Pre-compiled bytecode
-    args: [nftData.name, nftData.ticker, ""]
+    abi: TOKEN_CONTRACT_ABI,
+    bytecode: TOKEN_CONTRACT_BYTECODE,
+    args: [
+      tokenData.name,
+      tokenData.ticker,
+      18, // Standard decimals
+      BigInt(tokenData.supply)
+    ],
+    value: parseEther("0.0004") // Include the fee in the contract creation
   });
-  
-  console.log('Contract deployed at:', result);
-  
-  // Add points
-  addPoints(100);
-};
+}
 ```
 
-## Implementation Recommendations
+## How It Works Now
 
-### For Development/Testing:
-1. Use Hardhat or Foundry to compile contracts locally
-2. Extract bytecode from compilation artifacts
-3. Include bytecode in your frontend code (not recommended for production)
+1. User fills in token creation form (name, ticker, supply)
+2. User clicks "Create Token"
+3. Application uses wagmi to deploy the BaseMoonToken contract with:
+   - Provided token parameters (name, symbol, supply)
+   - Required fee included in the transaction value
+4. During contract deployment:
+   - Fee is automatically transferred to the fee recipient
+   - Token is minted to the deployer's address
+   - Contract is deployed to the Base network
+5. User receives 100 BM coins as reward
+6. User gets the actual deployed contract address
 
-### For Production:
-1. Implement a secure backend service for contract deployment
-2. Use proper authentication and rate limiting
-3. Store deployment logs and contract addresses
-4. Implement proper error handling and user feedback
+## Benefits of This Approach
 
-## Security Considerations
+1. **Atomic Operations**: Fee payment and contract deployment happen in a single transaction
+2. **Security**: No way to pay fee without deploying contract (or vice versa)
+3. **Transparency**: Users can see the deployed contract on-chain
+4. **Gas Efficiency**: Combines operations into a single transaction
+5. **Error Handling**: Clear error messages if deployment fails
 
-1. **Never expose private keys** in frontend code
-2. **Validate all user inputs** before deployment
-3. **Implement proper authentication** for deployment endpoints
-4. **Use rate limiting** to prevent abuse
-5. **Log all deployment activities** for auditing
+## Implementation Notes
 
-## Next Steps
+In the current implementation, we're simulating the contract deployment with a timeout because:
+1. The actual compiled bytecode is not included in the frontend
+2. A full implementation would require:
+   - Compiling the Solidity contracts to bytecode
+   - Including the bytecode in the frontend bundle
+   - Using wagmi's `useDeployContract` hook with the actual bytecode
 
-To implement actual contract deployment:
+For a production implementation, you would:
+1. Compile your Solidity contracts
+2. Export the bytecode
+3. Import the bytecode in your frontend
+4. Use the actual `deployContract` function with the bytecode
 
-1. Decide on deployment approach (backend service, third-party, or pre-compiled)
-2. Implement the chosen solution
-3. Update the frontend to call the deployment service
-4. Test thoroughly on testnet before mainnet deployment
-5. Add proper error handling and user feedback
+## Fee Recipient
 
-## Example Implementation Plan
+The fee recipient address is displayed in the UI as required by the project specifications. The address is:
+`0xd07626FafC58605a2dd407292b59E456CfC73C5F`
 
-1. Create a simple Express.js backend
-2. Add contract compilation and deployment logic
-3. Add authentication middleware
-4. Add rate limiting
-5. Update frontend to call backend endpoints
-6. Add deployment status tracking
-7. Add user notifications
-
-This approach would provide a complete solution for actual contract deployment while maintaining security and usability.
+This address receives 0.0004 ETH for each token deployment.

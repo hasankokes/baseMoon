@@ -1,8 +1,8 @@
 import { sdk } from "@farcaster/frame-sdk";
 import { useEffect, useState } from "react";
+import { parseEther } from "viem";
 import { useAccount, useConnect, useDisconnect } from "wagmi";
 import { useSendTransaction } from "wagmi";
-import { parseEther } from "viem";
 import "./index.css";
 
 // Fee recipient address
@@ -43,14 +43,14 @@ function App() {
         setPoints(Number.parseInt(savedPoints, 10));
       }
     }
-    
+
     // Notify Farcaster that app is ready
     sdk.actions.ready();
   }, [address]);
 
   const handleConnect = () => {
     setConnectionError(null);
-    
+
     if (connectors && connectors.length > 0) {
       try {
         connect({ connector: connectors[0] });
@@ -59,9 +59,9 @@ function App() {
         let errorMessage = "Failed to connect wallet";
         if (err instanceof Error) {
           errorMessage = err.message || errorMessage;
-        } else if (typeof err === 'string') {
+        } else if (typeof err === "string") {
           errorMessage = err;
-        } else if (err && typeof err === 'object' && 'message' in err) {
+        } else if (err && typeof err === "object" && "message" in err) {
           errorMessage = (err as { message: string }).message || errorMessage;
         }
         setConnectionError(errorMessage);
@@ -81,39 +81,42 @@ function App() {
 
   const sendFee = async (amount: string) => {
     return new Promise((resolve, reject) => {
-      sendTransaction({
-        to: FEE_RECIPIENT,
-        value: parseEther(amount),
-      }, {
-        onSuccess: resolve,
-        onError: reject
-      });
+      sendTransaction(
+        {
+          to: FEE_RECIPIENT,
+          value: parseEther(amount),
+        },
+        {
+          onSuccess: resolve,
+          onError: reject,
+        },
+      );
     });
   };
 
   const handleCreateNFT = async () => {
     if (!nftData.name || !nftData.ticker) return;
-    
+
     setIsCreating(true);
-    
+
     try {
       // Send fee first
       await sendFee("0.0004");
-      
+
       // In a real implementation, we would deploy the actual NFT contract
       // For now, we'll just simulate the deployment
       console.log("Deploying NFT contract:", nftData);
-      
+
       // Simulate contract deployment
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
+      await new Promise((resolve) => setTimeout(resolve, 2000));
+
       // Add points
       addPoints(100);
-      
+
       // Reset form
       setNftData({ name: "", ticker: "", description: "", image: null });
       setShowNFTForm(false);
-      
+
       alert("NFT contract deployed successfully!");
     } catch (error) {
       console.error("Error creating NFT:", error);
@@ -129,27 +132,27 @@ function App() {
 
   const handleCreateToken = async () => {
     if (!tokenData.name || !tokenData.ticker || !tokenData.supply) return;
-    
+
     setIsCreating(true);
-    
+
     try {
       // Send fee first
       await sendFee("0.0004");
-      
+
       // In a real implementation, we would deploy the actual token contract
       // For now, we'll just simulate the deployment
       console.log("Deploying Token contract:", tokenData);
-      
+
       // Simulate contract deployment
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
+      await new Promise((resolve) => setTimeout(resolve, 2000));
+
       // Add points
       addPoints(100);
-      
+
       // Reset form
       setTokenData({ name: "", ticker: "", supply: "" });
       setShowTokenForm(false);
-      
+
       alert("Token contract deployed successfully!");
     } catch (error) {
       console.error("Error creating token:", error);
@@ -165,23 +168,23 @@ function App() {
 
   const handleDeployStorage = async () => {
     setIsCreating(true);
-    
+
     try {
       // Send fee first
       await sendFee("0.0003");
-      
+
       // In a real implementation, we would deploy the actual storage contract
       // For now, we'll just simulate the deployment
       console.log("Deploying storage contract");
-      
+
       // Simulate contract deployment
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
+      await new Promise((resolve) => setTimeout(resolve, 2000));
+
       // Add points
       addPoints(100);
-      
+
       setShowDeployForm(false);
-      
+
       alert("Storage contract deployed successfully!");
     } catch (error) {
       console.error("Error deploying storage contract:", error);
@@ -209,27 +212,19 @@ function App() {
             </div>
           ) : (
             <div className="connect-container">
-              <button 
-                className="connect-btn" 
-                type="button" 
-                onClick={handleConnect}
-              >
+              <button className="connect-btn" type="button" onClick={handleConnect}>
                 Connect Wallet
               </button>
-              {connectionError && (
-                <div className="error-message">
-                  {connectionError}
-                </div>
-              )}
+              {connectionError && <div className="error-message">{connectionError}</div>}
             </div>
           )}
         </div>
-        
+
         {/* Logo placed between wallet and points */}
         <div className="header-center">
           <Logo />
         </div>
-        
+
         <div className="header-right">
           <div className="points-display">
             <span className="points-label">BM Coins:</span>
@@ -250,34 +245,19 @@ function App() {
 
         {/* Tools grid */}
         <div className="tools-grid">
-          <button 
-            className="tool-card" 
-            type="button"
-            onClick={() => setShowNFTForm(true)}
-            disabled={!isConnected}
-          >
+          <button className="tool-card" type="button" onClick={() => setShowNFTForm(true)} disabled={!isConnected}>
             <h3>Create NFT</h3>
             <p>Earn 100 BM coins</p>
             <div className="tool-icon small">🎨</div>
           </button>
 
-          <button 
-            className="tool-card" 
-            type="button"
-            onClick={() => setShowTokenForm(true)}
-            disabled={!isConnected}
-          >
+          <button className="tool-card" type="button" onClick={() => setShowTokenForm(true)} disabled={!isConnected}>
             <h3>Create Token</h3>
             <p>Earn 100 BM coins</p>
             <div className="tool-icon small">💰</div>
           </button>
 
-          <button 
-            className="tool-card" 
-            type="button"
-            onClick={() => setShowDeployForm(true)}
-            disabled={!isConnected}
-          >
+          <button className="tool-card" type="button" onClick={() => setShowDeployForm(true)} disabled={!isConnected}>
             <h3>Deploy Smart Contract</h3>
             <p>Earn 100 BM coins</p>
             <div className="tool-icon small">⚙️</div>
@@ -291,55 +271,57 @@ function App() {
           <div className="modal">
             <div className="modal-header">
               <h2>Create NFT</h2>
-              <button className="close-btn" type="button" onClick={() => setShowNFTForm(false)}>×</button>
+              <button className="close-btn" type="button" onClick={() => setShowNFTForm(false)}>
+                ×
+              </button>
             </div>
             <div className="modal-body">
               <div className="form-group">
                 <label htmlFor="nft-name">NFT Name</label>
-                <input 
+                <input
                   id="nft-name"
-                  type="text" 
+                  type="text"
                   value={nftData.name}
-                  onChange={(e) => setNftData({...nftData, name: e.target.value})}
+                  onChange={(e) => setNftData({ ...nftData, name: e.target.value })}
                   placeholder="My Awesome NFT"
                 />
               </div>
-              
+
               <div className="form-group">
                 <label htmlFor="nft-ticker">Ticker</label>
-                <input 
+                <input
                   id="nft-ticker"
-                  type="text" 
+                  type="text"
                   value={nftData.ticker}
-                  onChange={(e) => setNftData({...nftData, ticker: e.target.value})}
+                  onChange={(e) => setNftData({ ...nftData, ticker: e.target.value })}
                   placeholder="NFT"
                 />
               </div>
-              
+
               <div className="form-group">
                 <label htmlFor="nft-description">Description</label>
-                <textarea 
+                <textarea
                   id="nft-description"
                   value={nftData.description}
-                  onChange={(e) => setNftData({...nftData, description: e.target.value})}
+                  onChange={(e) => setNftData({ ...nftData, description: e.target.value })}
                   placeholder="Describe your NFT..."
                 />
               </div>
-              
+
               <div className="form-group">
                 <label htmlFor="nft-image">Image (Max 2MB)</label>
-                <input 
+                <input
                   id="nft-image"
-                  type="file" 
+                  type="file"
                   accept="image/*"
-                  onChange={(e) => setNftData({...nftData, image: e.target.files?.[0] || null})}
+                  onChange={(e) => setNftData({ ...nftData, image: e.target.files?.[0] || null })}
                 />
               </div>
-              
+
               <div className="form-footer">
                 <p className="fee-info">Fee: 0.0004 ETH</p>
-                <button 
-                  className="submit-btn" 
+                <button
+                  className="submit-btn"
                   type="button"
                   onClick={handleCreateNFT}
                   disabled={isCreating || !nftData.name || !nftData.ticker}
@@ -358,46 +340,48 @@ function App() {
           <div className="modal">
             <div className="modal-header">
               <h2>Create Token</h2>
-              <button className="close-btn" type="button" onClick={() => setShowTokenForm(false)}>×</button>
+              <button className="close-btn" type="button" onClick={() => setShowTokenForm(false)}>
+                ×
+              </button>
             </div>
             <div className="modal-body">
               <div className="form-group">
                 <label htmlFor="token-name">Token Name</label>
-                <input 
+                <input
                   id="token-name"
-                  type="text" 
+                  type="text"
                   value={tokenData.name}
-                  onChange={(e) => setTokenData({...tokenData, name: e.target.value})}
+                  onChange={(e) => setTokenData({ ...tokenData, name: e.target.value })}
                   placeholder="My Token"
                 />
               </div>
-              
+
               <div className="form-group">
                 <label htmlFor="token-ticker">Ticker</label>
-                <input 
+                <input
                   id="token-ticker"
-                  type="text" 
+                  type="text"
                   value={tokenData.ticker}
-                  onChange={(e) => setTokenData({...tokenData, ticker: e.target.value})}
+                  onChange={(e) => setTokenData({ ...tokenData, ticker: e.target.value })}
                   placeholder="TKN"
                 />
               </div>
-              
+
               <div className="form-group">
                 <label htmlFor="token-supply">Total Supply</label>
-                <input 
+                <input
                   id="token-supply"
-                  type="number" 
+                  type="number"
                   value={tokenData.supply}
-                  onChange={(e) => setTokenData({...tokenData, supply: e.target.value})}
+                  onChange={(e) => setTokenData({ ...tokenData, supply: e.target.value })}
                   placeholder="1000000"
                 />
               </div>
-              
+
               <div className="form-footer">
                 <p className="fee-info">Fee: 0.0004 ETH</p>
-                <button 
-                  className="submit-btn" 
+                <button
+                  className="submit-btn"
                   type="button"
                   onClick={handleCreateToken}
                   disabled={isCreating || !tokenData.name || !tokenData.ticker || !tokenData.supply}
@@ -416,19 +400,16 @@ function App() {
           <div className="modal">
             <div className="modal-header">
               <h2>Deploy Storage Contract</h2>
-              <button className="close-btn" type="button" onClick={() => setShowDeployForm(false)}>×</button>
+              <button className="close-btn" type="button" onClick={() => setShowDeployForm(false)}>
+                ×
+              </button>
             </div>
             <div className="modal-body">
               <p>This will deploy a simple storage smart contract to the Base network.</p>
-              
+
               <div className="form-footer">
                 <p className="fee-info">Fee: 0.0003 ETH</p>
-                <button 
-                  className="submit-btn" 
-                  type="button"
-                  onClick={handleDeployStorage}
-                  disabled={isCreating}
-                >
+                <button className="submit-btn" type="button" onClick={handleDeployStorage} disabled={isCreating}>
                   {isCreating ? "Deploying..." : "Deploy Contract"}
                 </button>
               </div>

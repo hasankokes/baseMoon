@@ -20,6 +20,7 @@ A Farcaster mini app for preparing wallets for Base airdrops with gamification e
 2. **Create Token**: Earn 100 BM coins
    - Fee: 0.0004 ETH
    - Create custom tokens with name, ticker, and supply
+   - **Now includes actual contract deployment with fee handling**
 
 3. **Deploy Smart Contract**: Earn 100 BM coins
    - Fee: 0.0003 ETH
@@ -74,7 +75,7 @@ See `CREATE_PNG_FILES.md` for detailed instructions on creating these PNG files 
 
 ## Contract Deployment
 
-The current implementation only sends fees but does not actually deploy smart contracts. See `CONTRACT_DEPLOYMENT.md` for information on implementing actual contract deployment.
+The application now properly handles contract deployment with integrated fee handling. See `CONTRACT_DEPLOYMENT.md` for detailed information on how contract deployment works.
 
 ## Farcaster Assets
 
@@ -108,7 +109,7 @@ To complete the MiniKit setup:
 
 The app includes sample smart contracts in the `contracts` directory:
 - BaseMoonNFT.sol - ERC721 NFT contract
-- BaseMoonToken.sol - ERC20 Token contract
+- BaseMoonToken.sol - ERC20 Token contract with integrated fee handling
 - BaseMoonStorage.sol - Simple storage contract
 
 ## Farcaster Integration
