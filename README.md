@@ -10,20 +10,20 @@ A Farcaster mini app for preparing wallets for Base airdrops with gamification e
 - **Token Creation**: Create custom tokens with name, ticker, and supply
 - **Smart Contract Deployment**: Deploy simple storage contracts to Base network
 - **Persistent Points**: Points are saved per wallet address using localStorage
+- **Network Restriction**: Application only works on Base mainnet
 
 ## Tools
 
 1. **Create NFT**: Earn 100 BM coins
-   - Fee: 0.0004 ETH
+   - Fee: 0.0002 ETH
    - Create custom NFTs with name, ticker, description, and image
 
 2. **Create Token**: Earn 100 BM coins
-   - Fee: 0.0004 ETH
+   - Fee: 0.0002 ETH
    - Create custom tokens with name, ticker, and supply
-   - **Now includes actual contract deployment with fee handling**
 
 3. **Deploy Smart Contract**: Earn 100 BM coins
-   - Fee: 0.0003 ETH
+   - Fee: 0.0001 ETH
    - Deploy a simple storage contract to the Base network
 
 ## Technologies Used
@@ -108,9 +108,9 @@ To complete the MiniKit setup:
 ## Smart Contracts
 
 The app includes sample smart contracts in the `contracts` directory:
-- BaseMoonNFT.sol - ERC721 NFT contract
-- BaseMoonToken.sol - ERC20 Token contract with integrated fee handling
-- BaseMoonStorage.sol - Simple storage contract
+- BaseMoonNFT.sol - ERC721 NFT contract with integrated fee handling (0.0002 ETH)
+- BaseMoonToken.sol - ERC20 Token contract with integrated fee handling (0.0002 ETH)
+- BaseMoonStorage.sol - Simple storage contract with integrated fee handling (0.0001 ETH)
 
 ## Farcaster Integration
 
@@ -118,6 +118,7 @@ This app is designed as a Farcaster mini app and includes:
 - Proper manifest file at `public/.well-known/farcaster.json`
 - Farcaster Frame SDK integration
 - Responsive design for mobile Farcaster clients
+- Network restriction to Base mainnet only
 
 ## License
 

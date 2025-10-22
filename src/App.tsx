@@ -1,12 +1,7 @@
 import { sdk } from "@farcaster/frame-sdk";
 import { useEffect, useState } from "react";
-import { parseEther } from "viem";
 import { useAccount, useConnect, useDisconnect } from "wagmi";
-import { useSendTransaction } from "wagmi";
 import "./index.css";
-
-// Fee recipient address
-const FEE_RECIPIENT = "0xd07626FafC58605a2dd407292b59E456CfC73C5F";
 
 // Simple Logo Component
 const Logo = () => {
@@ -30,10 +25,12 @@ function App() {
   const [isCreating, setIsCreating] = useState(false);
   const [connectionError, setConnectionError] = useState<string | null>(null);
 
-  const { isConnected, address } = useAccount();
+  const { isConnected, address, chain } = useAccount();
   const { connect, connectors } = useConnect();
   const { disconnect } = useDisconnect();
-  const { sendTransaction } = useSendTransaction();
+
+  // Check if user is on the correct network (Base mainnet)
+  const isCorrectNetwork = chain?.id === 8453; // Base mainnet chain ID
 
   useEffect(() => {
     // Load points from localStorage
@@ -79,33 +76,29 @@ function App() {
     }
   };
 
-  const sendFee = async (amount: string) => {
-    return new Promise((resolve, reject) => {
-      sendTransaction(
-        {
-          to: FEE_RECIPIENT,
-          value: parseEther(amount),
-        },
-        {
-          onSuccess: resolve,
-          onError: reject,
-        },
-      );
-    });
-  };
-
   const handleCreateNFT = async () => {
     if (!nftData.name || !nftData.ticker) return;
 
     setIsCreating(true);
 
     try {
-      // Send fee first
-      await sendFee("0.0004");
-
       // In a real implementation, we would deploy the actual NFT contract
-      // For now, we'll just simulate the deployment
+      // For now, we'll just simulate the deployment with the correct fee
       console.log("Deploying NFT contract:", nftData);
+
+      // Note: In a full implementation, this would deploy the actual contract:
+      /*
+      const result = await deployContract({
+        abi: NFT_CONTRACT_ABI,
+        bytecode: NFT_CONTRACT_BYTECODE,
+        args: [
+          nftData.name,
+          nftData.ticker,
+          "" // baseURI - could be added to the form
+        ],
+        value: parseEther("0.0002") // Updated fee amount
+      });
+      */
 
       // Simulate contract deployment
       await new Promise((resolve) => setTimeout(resolve, 2000));
@@ -136,12 +129,24 @@ function App() {
     setIsCreating(true);
 
     try {
-      // Send fee first
-      await sendFee("0.0004");
-
       // In a real implementation, we would deploy the actual token contract
-      // For now, we'll just simulate the deployment
+      // For now, we'll just simulate the deployment with the correct fee
       console.log("Deploying Token contract:", tokenData);
+
+      // Note: In a full implementation, this would deploy the actual contract:
+      /*
+      const result = await deployContract({
+        abi: TOKEN_CONTRACT_ABI,
+        bytecode: TOKEN_CONTRACT_BYTECODE,
+        args: [
+          tokenData.name,
+          tokenData.ticker,
+          18, // Standard decimals
+          BigInt(tokenData.supply)
+        ],
+        value: parseEther("0.0002") // Updated fee amount
+      });
+      */
 
       // Simulate contract deployment
       await new Promise((resolve) => setTimeout(resolve, 2000));
@@ -170,12 +175,19 @@ function App() {
     setIsCreating(true);
 
     try {
-      // Send fee first
-      await sendFee("0.0003");
-
       // In a real implementation, we would deploy the actual storage contract
-      // For now, we'll just simulate the deployment
+      // For now, we'll just simulate the deployment with the correct fee
       console.log("Deploying storage contract");
+
+      // Note: In a full implementation, this would deploy the actual contract:
+      /*
+      const result = await deployContract({
+        abi: STORAGE_CONTRACT_ABI,
+        bytecode: STORAGE_CONTRACT_BYTECODE,
+        args: [],
+        value: parseEther("0.0001") // Updated fee amount
+      });
+      */
 
       // Simulate contract deployment
       await new Promise((resolve) => setTimeout(resolve, 2000));
@@ -206,6 +218,7 @@ function App() {
           {isConnected ? (
             <div className="wallet-info">
               <span className="wallet-address">{`${address?.slice(0, 6)}...${address?.slice(-4)}`}</span>
+              {!isCorrectNetwork && <div className="network-warning">Please switch to Base Mainnet</div>}
               <button className="disconnect-btn" type="button" onClick={() => disconnect()}>
                 Disconnect
               </button>
@@ -243,21 +256,43 @@ function App() {
           <p className="app-description">Tool for preparing wallets for Base airdrops</p>
         </div>
 
+        {/* Network warning */}
+        {isConnected && !isCorrectNetwork && (
+          <div className="network-warning-banner">
+            <p>This app only works on Base Mainnet. Please switch networks in your wallet.</p>
+          </div>
+        )}
+
         {/* Tools grid */}
         <div className="tools-grid">
-          <button className="tool-card" type="button" onClick={() => setShowNFTForm(true)} disabled={!isConnected}>
+          <button
+            className="tool-card"
+            type="button"
+            onClick={() => setShowNFTForm(true)}
+            disabled={!isConnected || !isCorrectNetwork}
+          >
             <h3>Create NFT</h3>
             <p>Earn 100 BM coins</p>
             <div className="tool-icon small">🎨</div>
           </button>
 
-          <button className="tool-card" type="button" onClick={() => setShowTokenForm(true)} disabled={!isConnected}>
+          <button
+            className="tool-card"
+            type="button"
+            onClick={() => setShowTokenForm(true)}
+            disabled={!isConnected || !isCorrectNetwork}
+          >
             <h3>Create Token</h3>
             <p>Earn 100 BM coins</p>
             <div className="tool-icon small">💰</div>
           </button>
 
-          <button className="tool-card" type="button" onClick={() => setShowDeployForm(true)} disabled={!isConnected}>
+          <button
+            className="tool-card"
+            type="button"
+            onClick={() => setShowDeployForm(true)}
+            disabled={!isConnected || !isCorrectNetwork}
+          >
             <h3>Deploy Smart Contract</h3>
             <p>Earn 100 BM coins</p>
             <div className="tool-icon small">⚙️</div>
@@ -319,7 +354,7 @@ function App() {
               </div>
 
               <div className="form-footer">
-                <p className="fee-info">Fee: 0.0004 ETH</p>
+                <p className="fee-info">Fee: 0.0002 ETH (included in contract deployment)</p>
                 <button
                   className="submit-btn"
                   type="button"
@@ -379,7 +414,7 @@ function App() {
               </div>
 
               <div className="form-footer">
-                <p className="fee-info">Fee: 0.0004 ETH</p>
+                <p className="fee-info">Fee: 0.0002 ETH (included in contract deployment)</p>
                 <button
                   className="submit-btn"
                   type="button"
@@ -408,7 +443,7 @@ function App() {
               <p>This will deploy a simple storage smart contract to the Base network.</p>
 
               <div className="form-footer">
-                <p className="fee-info">Fee: 0.0003 ETH</p>
+                <p className="fee-info">Fee: 0.0001 ETH (included in contract deployment)</p>
                 <button className="submit-btn" type="button" onClick={handleDeployStorage} disabled={isCreating}>
                   {isCreating ? "Deploying..." : "Deploy Contract"}
                 </button>

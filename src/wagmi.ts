@@ -1,15 +1,14 @@
 import { http, createConfig } from "wagmi";
-import { base, mainnet } from "wagmi/chains";
+import { base } from "wagmi/chains";
 import { injected } from "wagmi/connectors";
 
 export const config = createConfig({
-  chains: [base, mainnet],
+  chains: [base], // Only Base mainnet
   connectors: [
     injected(), // Use only injected connector for now
   ],
   transports: {
     [base.id]: http(),
-    [mainnet.id]: http(),
   },
 });
 
