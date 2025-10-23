@@ -29,14 +29,14 @@ function App() {
   const [connectionError, setConnectionError] = useState<string | null>(null);
 
   const { isConnected, address, chain } = useAccount();
-  const { connect, connectors, error: connectError } = useConnect();
+  const { connect, connectors } = useConnect();
   const { disconnect } = useDisconnect();
   const { 
     deployContract, 
-    isPending: isDeployPending, 
-    isSuccess: isDeploySuccess, 
-    isError: isDeployError, 
-    error: deployError 
+    isPending, 
+    isSuccess, 
+    isError, 
+    error 
   } = useDeployContract();
 
   // Check if user is on the correct network (Base mainnet)
@@ -128,10 +128,10 @@ function App() {
       setShowNFTForm(false);
 
       alert("NFT contract deployed successfully!");
-    } catch (error) {
-      console.error("Error creating NFT:", error);
-      if (error instanceof Error) {
-        alert(`Error deploying NFT contract: ${error.message || "Please try again."}`);
+    } catch (err) {
+      console.error("Error creating NFT:", err);
+      if (err instanceof Error) {
+        alert(`Error deploying NFT contract: ${err.message || "Please try again."}`);
       } else {
         alert("Error deploying NFT contract. Please try again.");
       }
@@ -182,10 +182,10 @@ function App() {
       setShowTokenForm(false);
 
       alert("Token contract deployed successfully!");
-    } catch (error) {
-      console.error("Error creating token:", error);
-      if (error instanceof Error) {
-        alert(`Error deploying token contract: ${error.message || "Please try again."}`);
+    } catch (err) {
+      console.error("Error creating token:", err);
+      if (err instanceof Error) {
+        alert(`Error deploying token contract: ${err.message || "Please try again."}`);
       } else {
         alert("Error deploying token contract. Please try again.");
       }
@@ -230,10 +230,10 @@ function App() {
       setShowDeployForm(false);
 
       alert("Storage contract deployed successfully!");
-    } catch (error) {
-      console.error("Error deploying storage contract:", error);
-      if (error instanceof Error) {
-        alert(`Error deploying storage contract: ${error.message || "Please try again."}`);
+    } catch (err) {
+      console.error("Error deploying storage contract:", err);
+      if (err instanceof Error) {
+        alert(`Error deploying storage contract: ${err.message || "Please try again."}`);
       } else {
         alert("Error deploying storage contract. Please try again.");
       }
@@ -347,6 +347,11 @@ function App() {
               </button>
             </div>
             <div className="modal-body">
+              {/* Show deployment status */}
+              {isPending && <div className="status-message info">Deploying NFT contract...</div>}
+              {isSuccess && <div className="status-message success">NFT contract deployed successfully!</div>}
+              {isError && <div className="status-message error">Error: {error?.message || "Failed to deploy NFT contract"}</div>}
+              
               <div className="form-group">
                 <label htmlFor="nft-name">NFT Name</label>
                 <input
@@ -395,9 +400,9 @@ function App() {
                   className="submit-btn"
                   type="button"
                   onClick={handleCreateNFT}
-                  disabled={isCreating || !nftData.name || !nftData.ticker}
+                  disabled={isCreating || !nftData.name || !nftData.ticker || isPending}
                 >
-                  {isCreating ? "Creating..." : "Create NFT"}
+                  {isPending ? "Creating..." : "Create NFT"}
                 </button>
               </div>
             </div>
@@ -416,6 +421,11 @@ function App() {
               </button>
             </div>
             <div className="modal-body">
+              {/* Show deployment status */}
+              {isPending && <div className="status-message info">Deploying Token contract...</div>}
+              {isSuccess && <div className="status-message success">Token contract deployed successfully!</div>}
+              {isError && <div className="status-message error">Error: {error?.message || "Failed to deploy Token contract"}</div>}
+              
               <div className="form-group">
                 <label htmlFor="token-name">Token Name</label>
                 <input
@@ -455,9 +465,9 @@ function App() {
                   className="submit-btn"
                   type="button"
                   onClick={handleCreateToken}
-                  disabled={isCreating || !tokenData.name || !tokenData.ticker || !tokenData.supply}
+                  disabled={isCreating || !tokenData.name || !tokenData.ticker || !tokenData.supply || isPending}
                 >
-                  {isCreating ? "Creating..." : "Create Token"}
+                  {isPending ? "Creating..." : "Create Token"}
                 </button>
               </div>
             </div>
@@ -477,6 +487,11 @@ function App() {
             </div>
             <div className="modal-body">
               <p>This will deploy a simple storage smart contract to the Base network.</p>
+              
+              {/* Show deployment status */}
+              {isPending && <div className="status-message info">Deploying Storage contract...</div>}
+              {isSuccess && <div className="status-message success">Storage contract deployed successfully!</div>}
+              {isError && <div className="status-message error">Error: {error?.message || "Failed to deploy Storage contract"}</div>}
 
               <div className="form-footer">
                 <p className="fee-info">Fee: 0.0001 ETH (included in contract deployment)</p>
@@ -484,9 +499,9 @@ function App() {
                   className="submit-btn" 
                   type="button" 
                   onClick={handleDeployStorage} 
-                  disabled={isCreating}
+                  disabled={isCreating || isPending}
                 >
-                  {isCreating ? "Deploying..." : "Deploy Contract"}
+                  {isPending ? "Deploying..." : "Deploy Contract"}
                 </button>
               </div>
             </div>
