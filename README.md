@@ -1,125 +1,96 @@
-# Base Moon - Farcaster Mini App
+# Base Moon
 
-A Farcaster mini app for preparing wallets for Base airdrops with gamification elements.
+Base Moon is a tool for preparing wallets for Base airdrops by creating NFTs, tokens, and smart contracts on the Base network.
 
 ## Features
 
-- **Wallet Connection**: Connect your Ethereum wallet (MetaMask, etc.)
-- **Points System**: Earn BM coins for completing tasks
-- **NFT Creation**: Create custom NFTs with name, ticker, description, and image
-- **Token Creation**: Create custom tokens with name, ticker, and supply
-- **Smart Contract Deployment**: Deploy simple storage contracts to Base network
-- **Persistent Points**: Points are saved per wallet address using localStorage
-- **Network Restriction**: Application only works on Base mainnet
+- Create NFTs on Base (0.0002 ETH fee)
+- Create Tokens on Base (0.0002 ETH fee)
+- Deploy Storage contracts on Base (0.0001 ETH fee)
+- Earn BM coins for each successful deployment
+- Works exclusively on Base Mainnet
 
-## Tools
+## Prerequisites
 
-1. **Create NFT**: Earn 100 BM coins
-   - Fee: 0.0002 ETH
-   - Create custom NFTs with name, ticker, description, and image
+- Node.js (v16 or higher)
+- A Web3 wallet (MetaMask recommended)
+- ETH on Base Mainnet for contract deployment fees
 
-2. **Create Token**: Earn 100 BM coins
-   - Fee: 0.0002 ETH
-   - Create custom tokens with name, ticker, and supply
+## Installation
 
-3. **Deploy Smart Contract**: Earn 100 BM coins
-   - Fee: 0.0001 ETH
-   - Deploy a simple storage contract to the Base network
+```bash
+npm install
+```
 
-## Technologies Used
+## Building Contracts
 
-- React + TypeScript
-- Vite
-- Wagmi for wallet integration
-- Viem for Ethereum interactions
-- Farcaster Frame SDK
-- CSS3 with modern gradients and animations
+To build the contracts and extract bytecode for deployment:
 
-## Setup
+```bash
+# Compile the Solidity contracts
+npm run build:contracts
 
-1. Clone the repository:
-   ```bash
-   git clone <repository-url>
-   ```
+# Extract bytecode from artifacts
+npm run extract:bytecode
+```
 
-2. Install dependencies:
-   ```bash
-   npm install
-   ```
+## Development
 
-3. Run the development server:
-   ```bash
-   npm run dev
-   ```
+```bash
+npm run dev
+```
 
-4. Open your browser to the provided local URL (typically http://localhost:5173)
+## Building for Production
 
-## Deployment
-
-To build for production:
 ```bash
 npm run build
 ```
 
-The build files will be output to the `dist` directory.
-
-## Creating PNG Assets
-
-The project includes SVG files that need to be converted to PNG for proper Farcaster integration:
-
-1. `public/logo.svg` → `public/logo.png` (192x192) - App icon
-2. `public/preview.svg` → `public/preview.png` (400x400) - Preview image
-3. `public/splash.svg` → `public/splash.png` (400x400) - Splash screen
-
-See `CREATE_PNG_FILES.md` for detailed instructions on creating these PNG files using various methods.
-
 ## Contract Deployment
 
-The application now properly handles contract deployment with integrated fee handling. See `CONTRACT_DEPLOYMENT.md` for detailed information on how contract deployment works.
+The application allows users to deploy three types of contracts:
 
-## Farcaster Assets
+1. **BaseMoonNFT** - An ERC-721 NFT contract (0.0002 ETH fee)
+2. **BaseMoonToken** - An ERC-20 token contract (0.0002 ETH fee)
+3. **BaseMoonStorage** - A simple storage contract (0.0001 ETH fee)
 
-This app includes the required assets for Farcaster mini app integration:
-- `public/logo.png` (192x192) - App icon and preview image
-- `public/splash.png` (400x400) - Splash screen
-- `public/.well-known/farcaster.json` - Manifest file
+Each contract deployment includes a fee that is sent to a designated fee recipient address.
 
-SVG versions of the assets are provided in the `public` directory. To create the required PNG files:
-1. Convert `public/logo.svg` to a 192x192 PNG
-2. Convert `public/preview.svg` to a 400x400 PNG
-3. Convert `public/splash.svg` to a 400x400 PNG
-4. Replace the placeholder PNG files
+## How It Works
 
-See `CREATE_PNG_FILES.md` for detailed conversion instructions.
+1. Connect your wallet (must be on Base Mainnet)
+2. Choose one of the three contract deployment options
+3. Fill in the required information
+4. Confirm the transaction in your wallet
+5. Earn 100 BM coins for each successful deployment
 
-## MiniKit Configuration
+## Network Requirements
 
-This app includes a `minikit.config.ts` file for Base MiniKit integration:
-- Configures the Farcaster manifest at `public/.well-known/farcaster.json`
-- Sets up embed metadata for social sharing
-- Defines account association credentials (to be added after account association)
+This application only works on Base Mainnet (chain ID: 8453). If you're on a different network, you'll need to switch to Base Mainnet in your wallet.
 
-To complete the MiniKit setup:
-1. Deploy the app to your domain (https://base-moon-ten.vercel.app)
-2. Use the Base Build Account Association tool to generate account association credentials
-3. Update the `accountAssociation` object in `minikit.config.ts` with the generated credentials
-4. Redeploy the app
+## Fees
 
-## Smart Contracts
+- NFT Creation: 0.0002 ETH
+- Token Creation: 0.0002 ETH
+- Storage Contract Deployment: 0.0001 ETH
 
-The app includes sample smart contracts in the `contracts` directory:
-- BaseMoonNFT.sol - ERC721 NFT contract with integrated fee handling (0.0002 ETH)
-- BaseMoonToken.sol - ERC20 Token contract with integrated fee handling (0.0002 ETH)
-- BaseMoonStorage.sol - Simple storage contract with integrated fee handling (0.0001 ETH)
+These fees are included in the contract deployment transaction and are sent to the contract's fee recipient.
 
-## Farcaster Integration
+## Troubleshooting
 
-This app is designed as a Farcaster mini app and includes:
-- Proper manifest file at `public/.well-known/farcaster.json`
-- Farcaster Frame SDK integration
-- Responsive design for mobile Farcaster clients
-- Network restriction to Base mainnet only
+If you're experiencing issues with contract deployment:
 
-## License
+1. Ensure you're on Base Mainnet
+2. Check that you have sufficient ETH for the deployment fee
+3. Make sure the contracts have been compiled and bytecode is available
+4. Verify that your wallet is properly connected
 
-MIT
+## Development Notes
+
+The application uses:
+- React for the frontend
+- Wagmi for wallet integration
+- Viem for Ethereum interactions
+- Hardhat for contract compilation
+
+For actual contract deployment to work, the contracts must be compiled to generate bytecode, which is then used in the deployment process.

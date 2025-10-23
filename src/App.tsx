@@ -1,6 +1,9 @@
 import { sdk } from "@farcaster/frame-sdk";
 import { useEffect, useState } from "react";
-import { useAccount, useConnect, useDisconnect } from "wagmi";
+import { useAccount, useConnect, useDisconnect, useDeployContract } from "wagmi";
+import { parseEther } from "viem";
+import { BASE_MOON_NFT_ABI, BASE_MOON_STORAGE_ABI, BASE_MOON_TOKEN_ABI } from "./contractAbis";
+import { CONTRACT_BYTECODE, HAS_BYTECODE } from "./contractBytecode";
 import "./index.css";
 
 // Simple Logo Component
@@ -26,8 +29,15 @@ function App() {
   const [connectionError, setConnectionError] = useState<string | null>(null);
 
   const { isConnected, address, chain } = useAccount();
-  const { connect, connectors } = useConnect();
+  const { connect, connectors, error: connectError } = useConnect();
   const { disconnect } = useDisconnect();
+  const { 
+    deployContract, 
+    isPending: isDeployPending, 
+    isSuccess: isDeploySuccess, 
+    isError: isDeployError, 
+    error: deployError 
+  } = useDeployContract();
 
   // Check if user is on the correct network (Base mainnet)
   const isCorrectNetwork = chain?.id === 8453; // Base mainnet chain ID
@@ -82,27 +92,34 @@ function App() {
     setIsCreating(true);
 
     try {
-      // In a real implementation, we would deploy the actual NFT contract
-      // For now, we'll just simulate the deployment with the correct fee
-      console.log("Deploying NFT contract:", nftData);
+      // Check if bytecode is available
+      if (!HAS_BYTECODE) {
+        alert("Contract bytecode not available. In a production environment, this would deploy the actual NFT contract to Base mainnet with the fee included.");
+        console.log("Would deploy NFT with params:", {
+          abi: BASE_MOON_NFT_ABI,
+          args: [nftData.name, nftData.ticker, ""],
+          value: parseEther("0.0002")
+        });
+        
+        // Add points even in simulation mode
+        addPoints(100);
+        
+        // Reset form
+        setNftData({ name: "", ticker: "", description: "", image: null });
+        setShowNFTForm(false);
+        return;
+      }
 
-      // Note: In a full implementation, this would deploy the actual contract:
-      /*
+      // Deploy the actual NFT contract with the correct fee
       const result = await deployContract({
-        abi: NFT_CONTRACT_ABI,
-        bytecode: NFT_CONTRACT_BYTECODE,
-        args: [
-          nftData.name,
-          nftData.ticker,
-          "" // baseURI - could be added to the form
-        ],
-        value: parseEther("0.0002") // Updated fee amount
+        abi: BASE_MOON_NFT_ABI,
+        bytecode: CONTRACT_BYTECODE.BaseMoonNFT,
+        args: [nftData.name, nftData.ticker, ""],
+        value: parseEther("0.0002")
       });
-      */
 
-      // Simulate contract deployment
-      await new Promise((resolve) => setTimeout(resolve, 2000));
-
+      console.log("NFT deployment result:", result);
+      
       // Add points
       addPoints(100);
 
@@ -129,28 +146,34 @@ function App() {
     setIsCreating(true);
 
     try {
-      // In a real implementation, we would deploy the actual token contract
-      // For now, we'll just simulate the deployment with the correct fee
-      console.log("Deploying Token contract:", tokenData);
+      // Check if bytecode is available
+      if (!HAS_BYTECODE) {
+        alert("Contract bytecode not available. In a production environment, this would deploy the actual Token contract to Base mainnet with the fee included.");
+        console.log("Would deploy Token with params:", {
+          abi: BASE_MOON_TOKEN_ABI,
+          args: [tokenData.name, tokenData.ticker, 18, BigInt(tokenData.supply)],
+          value: parseEther("0.0002")
+        });
+        
+        // Add points even in simulation mode
+        addPoints(100);
+        
+        // Reset form
+        setTokenData({ name: "", ticker: "", supply: "" });
+        setShowTokenForm(false);
+        return;
+      }
 
-      // Note: In a full implementation, this would deploy the actual contract:
-      /*
+      // Deploy the actual token contract with the correct fee
       const result = await deployContract({
-        abi: TOKEN_CONTRACT_ABI,
-        bytecode: TOKEN_CONTRACT_BYTECODE,
-        args: [
-          tokenData.name,
-          tokenData.ticker,
-          18, // Standard decimals
-          BigInt(tokenData.supply)
-        ],
-        value: parseEther("0.0002") // Updated fee amount
+        abi: BASE_MOON_TOKEN_ABI,
+        bytecode: CONTRACT_BYTECODE.BaseMoonToken,
+        args: [tokenData.name, tokenData.ticker, 18, BigInt(tokenData.supply)],
+        value: parseEther("0.0002")
       });
-      */
 
-      // Simulate contract deployment
-      await new Promise((resolve) => setTimeout(resolve, 2000));
-
+      console.log("Token deployment result:", result);
+      
       // Add points
       addPoints(100);
 
@@ -175,23 +198,32 @@ function App() {
     setIsCreating(true);
 
     try {
-      // In a real implementation, we would deploy the actual storage contract
-      // For now, we'll just simulate the deployment with the correct fee
-      console.log("Deploying storage contract");
+      // Check if bytecode is available
+      if (!HAS_BYTECODE) {
+        alert("Contract bytecode not available. In a production environment, this would deploy the actual Storage contract to Base mainnet with the fee included.");
+        console.log("Would deploy Storage with params:", {
+          abi: BASE_MOON_STORAGE_ABI,
+          args: [],
+          value: parseEther("0.0001")
+        });
+        
+        // Add points even in simulation mode
+        addPoints(100);
+        
+        setShowDeployForm(false);
+        return;
+      }
 
-      // Note: In a full implementation, this would deploy the actual contract:
-      /*
+      // Deploy the actual storage contract with the correct fee
       const result = await deployContract({
-        abi: STORAGE_CONTRACT_ABI,
-        bytecode: STORAGE_CONTRACT_BYTECODE,
+        abi: BASE_MOON_STORAGE_ABI,
+        bytecode: CONTRACT_BYTECODE.BaseMoonStorage,
         args: [],
-        value: parseEther("0.0001") // Updated fee amount
+        value: parseEther("0.0001")
       });
-      */
 
-      // Simulate contract deployment
-      await new Promise((resolve) => setTimeout(resolve, 2000));
-
+      console.log("Storage deployment result:", result);
+      
       // Add points
       addPoints(100);
 
@@ -218,7 +250,11 @@ function App() {
           {isConnected ? (
             <div className="wallet-info">
               <span className="wallet-address">{`${address?.slice(0, 6)}...${address?.slice(-4)}`}</span>
-              {!isCorrectNetwork && <div className="network-warning">Please switch to Base Mainnet</div>}
+              {!isCorrectNetwork && (
+                <div className="network-warning">
+                  Please switch to Base Mainnet
+                </div>
+              )}
               <button className="disconnect-btn" type="button" onClick={() => disconnect()}>
                 Disconnect
               </button>
@@ -265,10 +301,10 @@ function App() {
 
         {/* Tools grid */}
         <div className="tools-grid">
-          <button
-            className="tool-card"
-            type="button"
-            onClick={() => setShowNFTForm(true)}
+          <button 
+            className="tool-card" 
+            type="button" 
+            onClick={() => setShowNFTForm(true)} 
             disabled={!isConnected || !isCorrectNetwork}
           >
             <h3>Create NFT</h3>
@@ -276,10 +312,10 @@ function App() {
             <div className="tool-icon small">🎨</div>
           </button>
 
-          <button
-            className="tool-card"
-            type="button"
-            onClick={() => setShowTokenForm(true)}
+          <button 
+            className="tool-card" 
+            type="button" 
+            onClick={() => setShowTokenForm(true)} 
             disabled={!isConnected || !isCorrectNetwork}
           >
             <h3>Create Token</h3>
@@ -287,10 +323,10 @@ function App() {
             <div className="tool-icon small">💰</div>
           </button>
 
-          <button
-            className="tool-card"
-            type="button"
-            onClick={() => setShowDeployForm(true)}
+          <button 
+            className="tool-card" 
+            type="button" 
+            onClick={() => setShowDeployForm(true)} 
             disabled={!isConnected || !isCorrectNetwork}
           >
             <h3>Deploy Smart Contract</h3>
@@ -444,7 +480,12 @@ function App() {
 
               <div className="form-footer">
                 <p className="fee-info">Fee: 0.0001 ETH (included in contract deployment)</p>
-                <button className="submit-btn" type="button" onClick={handleDeployStorage} disabled={isCreating}>
+                <button 
+                  className="submit-btn" 
+                  type="button" 
+                  onClick={handleDeployStorage} 
+                  disabled={isCreating}
+                >
                   {isCreating ? "Deploying..." : "Deploy Contract"}
                 </button>
               </div>
